@@ -72,7 +72,11 @@ def L_model_backward(AL, Y, caches):
              grads["dW" + str(l)] = ...
              grads["db" + str(l)] = ...
     """
-    pass
+    grads = {}
+    # TODO: implement here
+
+    return grads
+
 
 def Update_parameters(parameters, grads, learning_rate):
     """
@@ -83,3 +87,8 @@ def Update_parameters(parameters, grads, learning_rate):
     :return:
         parameters – the updated values of the parameters object provided as input
     """
+    parameters = {}  # TODO: change the value according to the instructions
+
+    # TODO: implement here
+
+    return parameters
