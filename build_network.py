@@ -61,7 +61,7 @@ def L_layer_model(X, Y, layers_dims, learning_rate, num_iterations, batch_size):
             x_b, y_b = split_x_y(batch, y_cols_n)
             AL, caches = forward.L_model_forward(x_b, parameters, USE_BATCHNORM)
             grads = backward.L_model_backward(AL, Y, caches)
-            parameters = backward.Update_parameters(parameters, grads, learning_rate)
+            parameters = backward.update_parameters(parameters, grads, learning_rate)
             training_steps_counter += 1
 
         if training_steps_counter % 100 == 0:
@@ -69,14 +69,14 @@ def L_layer_model(X, Y, layers_dims, learning_rate, num_iterations, batch_size):
             cost = forward.compute_cost(A_val, y_val)
             costs.append(cost)
             print(
-                f"Validation: step #{training_steps_counter}/{num_iterations}, acc: {Predict(x_val, y_val, parameters)}")
+                f"Validation: step #{training_steps_counter}/{num_iterations}, acc: {predict(x_val, y_val, parameters)}")
         print(
-            f"Training: step #{training_steps_counter}/{num_iterations}: acc: {Predict(x_train, y_train, parameters)}")
+            f"Training: step #{training_steps_counter}/{num_iterations}: acc: {predict(x_train, y_train, parameters)}")
 
     return parameters, costs
 
 
-def Predict(X, Y, parameters):
+def predict(X, Y, parameters):
     """
     The function receives an input data and the true labels and calculates the accuracy of the trained neural network on the data.
     :param X: the input data, a numpy array of shape (height*width, number_of_examples)
@@ -87,3 +87,10 @@ def Predict(X, Y, parameters):
         (i.e. the percentage of the samples for which the correct label receives the hughest confidence score).
         Use the softmax function to normalize the output values.
     """
+    prediction, caches = forward.L_model_forward(X, parameters, USE_BATCHNORM)
+    argmax_prediction = np.argmax(prediction, axis=0)
+    argmax_label = np.argmax(Y, axis=0)
+    correct_predictions = np.sum(argmax_prediction == argmax_label)
+    accuracy = correct_predictions / X.shape[1]
+    return accuracy
+
