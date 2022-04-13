@@ -1,3 +1,5 @@
+import numpy as np
+
 def Linear_backward(dZ, cache):
     """
     Implements the linear part of the backward propagation process for a single layer
@@ -9,7 +11,12 @@ def Linear_backward(dZ, cache):
         dW -- Gradient of the cost with respect to W (current layer l), same shape as W
         db -- Gradient of the cost with respect to b (current layer l), same shape as b
     """
-    pass
+    m = cache[0].shape[1]
+    dW_curr = np.dot(dZ, cache[0].T) / m
+    db_curr = np.sum(dZ, axis=1, keepdims=True) / m
+    dA_prev = np.dot(cache[1].T, dZ)
+
+    return dA_prev, dW_curr, db_curr
 
 
 def linear_activation_backward(dA, cache, activation):
@@ -31,6 +38,13 @@ def linear_activation_backward(dA, cache, activation):
         dW – Gradient of the cost with respect to W (current layer l), same shape as W
         db – Gradient of the cost with respect to b (current layer l), same shape as b
     """
+    if activation == 'relu':
+        activation_function = relu_backward
+    else:
+        activation_function = softmax_backward
+
+    dz = activation_function(dA, cache)
+    
     pass
 
 
@@ -42,7 +56,13 @@ def relu_backward(dA, activation_cache):
     :return:
         dZ – gradient of the cost with respect to Z
     """
-    pass
+    Z = activation_cache
+    dZ = np.array(dA, copy=True)  # just converting dz to a correct object.
+    # When z <= 0, you should set dz to 0 as well.
+    dZ[Z <= 0] = 0
+    assert (dZ.shape == Z.shape)
+    return dZ
+
 
 
 def softmax_backward(dA, activation_cache):
@@ -53,6 +73,7 @@ def softmax_backward(dA, activation_cache):
     :return:
         dZ – gradient of the cost with respect to Z
     """
+    
     pass
 
 
