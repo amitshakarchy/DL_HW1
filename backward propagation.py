@@ -105,7 +105,7 @@ def L_model_backward(AL, Y, caches):
         grads.update({f'dA{layer}': dA, f'dW{layer}': dW, f'db{layer}': db})
     return grads
 
-def Update_parameters(parameters, grads, learning_rate):
+def update_parameters(parameters, grads, learning_rate):
     """
     Updates parameters using gradient descent
     :param parameters: a python dictionary containing the DNN architecture’s parameters
@@ -116,7 +116,8 @@ def Update_parameters(parameters, grads, learning_rate):
     """
     num_of_layers = len(parameters) // 2
     for layer in range(1, num_of_layers + 1):
-        parameters[f'W{layer}'] -= learning_rate * grads[f'dW{layer}']
         parameters[f'b{layer}'] -= learning_rate * grads[f'db{layer}']
+        parameters[f'W{layer}'] -= learning_rate * grads[f'dW{layer}']
+
     return parameters
 
