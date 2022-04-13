@@ -3,6 +3,7 @@ import backward_propagation as backward
 import numpy as np
 from numpy import random
 
+"""PARAMS"""
 USE_BATCHNORM = False  # used in L_layer_model function
 VALIDATION_FRAC = 0.2
 STOPPING_CRITERIA = 100  # 100 training steps with no change
