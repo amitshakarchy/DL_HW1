@@ -1,3 +1,7 @@
+from tensorflow.keras.datasets.mnist import load_data
+import build_network
+
+
 """
 4.	Use the code you wrote to classify the MNIST dataset and present a summary report
     a.	Load the dataset using the Keras code. Note that there is a predefined division between the train and test set.
@@ -17,3 +21,6 @@
     d.	All the information requested above will be included in a .docx file uploaded with the code.
 
 """
+if '__name__' == 'main':
+    x_train, y_train, x_test, y_test = load_data(path='mnist.npz')
+    build_network.L_layer_model(x_train, y_train, layers_dims=[20, 7, 5, 10], learning_rate=0.009, num_iterations=100, batch_size=64)
