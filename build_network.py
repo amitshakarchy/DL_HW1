@@ -1,7 +1,9 @@
 import forward_propagation as forward
 import backward_propagation as backward
 import numpy as np
-from numpy import random
+import random
+import math
+
 
 """-PARAMS-"""
 USE_BATCHNORM = False  # used in L_layer_model function
@@ -12,12 +14,16 @@ STOPPING_CRITERIA = 100  # 100 training steps with no change
 def train_validation_split(X, Y):
     all_data = np.concatenate([X, Y], axis=0)  # concat rows before shuffling
     random.shuffle(all_data)
-    train, validation = all_data[VALIDATION_FRAC * len(all_data):, :], all_data[:VALIDATION_FRAC * len(all_data), :]
+    train, validation = all_data[:,int(VALIDATION_FRAC * len(all_data)) :], all_data[:, :int(VALIDATION_FRAC * len(all_data))]
+    # validation_index = random.sample(range(X.shape[0]), math.ceil(VALIDATION_FRAC*X.shape[0])) # shuffle
+    # train_index = [x for x in range(X.shape[0]) if x not in validation_index]
+    # train = (X[train_index], Y[train_index])
+    # validation = (X[validation_index], Y[validation_index])
     return train, validation
 
 
 def split_x_y(data, y_size):
-    x, y = data[:, :y_size], data[:, y_size:]
+    x, y = data[:, y_size:], data[:, :y_size]
     return x, y
 
 
@@ -51,18 +57,29 @@ def L_layer_model(X, Y, layers_dims, learning_rate, num_iterations, batch_size):
     train, validation = train_validation_split(X, Y)
     x_val, y_val = split_x_y(validation, y_cols_n)
     x_train, y_train = split_x_y(train, y_cols_n)
-    examples_num = train.shape[1]
+    examples_num = x_train.shape[1] # just changed from 0 to 1 continue debug here
     n_batches = examples_num // batch_size
 
     while (training_steps_counter < STOPPING_CRITERIA) and (training_steps_counter < num_iterations):
         random.shuffle(train)
-        batches = np.split(train, n_batches, axis=1)
+        batches = np.array_split(train, n_batches, axis=0)
+        # all_data = np.concatenate([x_train,y_train], axis=0)
+        # suffled = random.shuffle(all_data)
+        # batches = []
+        # for i in range(0, len(x_train), batch_size):
+        #     batches.append((x_train[i:i + batch_size], y_train[i:i + batch_size]))
+            # TODO shuffle index
+
         for batch in batches:
             x_b, y_b = split_x_y(batch, y_cols_n)
+            # x_b, y_b = batch[0], batch[1]
             AL, caches = forward.L_model_forward(x_b, parameters, USE_BATCHNORM)
-            grads = backward.L_model_backward(AL, Y, caches)
+            grads = backward.L_model_backward(AL, y_b, caches)
             parameters = backward.update_parameters(parameters, grads, learning_rate)
-            training_steps_counter += 1
+            # print('AL: ', AL)
+            # print('caches: ', caches)
+            # print('grads: ', grads)
+            # print('parameters: ', parameters)
 
         if training_steps_counter % 100 == 0:
             A_val, _ = forward.L_model_forward(x_val, parameters, USE_BATCHNORM)
@@ -72,6 +89,7 @@ def L_layer_model(X, Y, layers_dims, learning_rate, num_iterations, batch_size):
                 f"Validation: step #{training_steps_counter}/{num_iterations}, acc: {predict(x_val, y_val, parameters)}")
         print(
             f"Training: step #{training_steps_counter}/{num_iterations}: acc: {predict(x_train, y_train, parameters)}")
+        training_steps_counter += 1
 
     return parameters, costs
 

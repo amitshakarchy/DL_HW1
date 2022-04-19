@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="PublishConfigData" autoUpload="Always" serverName="liatp@132.72.46.175:22" remoteFilesAllowedToDisappearOnAutoupload="false">
+  <component name="PublishConfigData" autoUpload="Always" serverName="liatp@132.72.65.199:22 (6)" remoteFilesAllowedToDisappearOnAutoupload="false">
     <serverData>
       <paths name="liatp@132.72.46.175:22">
         <serverdata>
@@ -41,6 +41,13 @@
         <serverdata>
           <mappings>
             <mapping local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="liatp@132.72.65.199:22 (6)">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/sise/home/liatp/deep_learning_course/ex1" local="$PROJECT_DIR$" />
           </mappings>
         </serverdata>
       </paths>

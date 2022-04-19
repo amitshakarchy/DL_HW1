@@ -11,10 +11,10 @@ def linear_backward(dZ, cache):
         dW -- Gradient of the cost with respect to W (current layer l), same shape as W
         db -- Gradient of the cost with respect to b (current layer l), same shape as b
     """
-    m = cache['A_prev'].shape[1]
-    dW_curr = np.dot(dZ, cache['A_prev'].T) / m
-    db_curr = np.sum(dZ, axis=1, keepdims=True) / m
-    dA_prev = np.dot(cache['W'].T, dZ)
+    m = cache['A'].shape[1]
+    dW_curr = np.dot(cache['A'].transpose(), dZ) / m
+    db_curr = np.sum(dZ, axis=0, keepdims=True) / m
+    dA_prev = np.dot(dZ, cache['W'].transpose())
 
     return dA_prev, dW_curr, db_curr
 
@@ -99,8 +99,8 @@ def L_model_backward(AL, Y, caches):
     caches[num_of_layers -1 ]['AL'] = AL
     caches[num_of_layers - 1]['Y'] = Y
     for layer in range(num_of_layers, 0, -1):
-        activation = 'relu' if dA_prev else 'softmax'
-        dA = dA_prev if dA_prev else -(Y/AL)+(1-Y)/(1-AL)
+        activation = 'relu' if dA_prev is not None else 'softmax'
+        dA = dA_prev if dA_prev is not None else -(Y/AL)+(1-Y)/(1-AL)
         dA_prev, dW, db = linear_activation_backward(dA, caches[layer - 1], activation)
         grads.update({f'dA{layer}': dA, f'dW{layer}': dW, f'db{layer}': db})
     return grads
@@ -116,7 +116,7 @@ def update_parameters(parameters, grads, learning_rate):
     """
     num_of_layers = len(parameters) // 2
     for layer in range(1, num_of_layers + 1):
-        parameters[f'b{layer}'] -= learning_rate * grads[f'db{layer}']
+        parameters[f'b{layer}'] -= learning_rate * grads[f'db{layer}'][0]
         parameters[f'W{layer}'] -= learning_rate * grads[f'dW{layer}']
 
     return parameters

@@ -11,8 +11,9 @@ def initialize_parameters(layer_dims):
     input: an array of the dimensions of each layer in the network (layer 0 is the size of the flattened input, layer L is the output softmax)
     output: a dictionary containing the initialized W and b parameters of each layer (W1…WL, b1…bL).
     """
-    params_W = {f"W{i + 1}": random.randn(layer_dims[i + 1], layer_dims[i]) for i in range(len(layer_dims - 1))}
-    params_b = {f"b{i + 1}": np.zeros(layer_dims[i + 1], 1) for i in range(len(layer_dims - 1))}
+    random.seed(1994)
+    params_W = {f"W{i + 1}": random.randn(layer_dims[i], layer_dims[i + 1])*np.sqrt(2/layer_dims[i]) for i in range(len(layer_dims) - 1)}
+    params_b = {f"b{i + 1}": np.zeros(layer_dims[i + 1]) for i in range(len(layer_dims) - 1)}
     params_output = {}
     params_output.update(params_W)
     params_output.update(params_b)
@@ -30,7 +31,7 @@ def linear_forward(A, W, b):
         linear_cache – a dictionary containing A, W, b (stored for making the backpropagation easier to compute)
     """
     # 𝑧 = 𝑤^𝑇*𝑥 + 𝑏
-    Z = np.matmul(W, A) + b
+    Z = np.matmul(A, W) + b # np.matmul(W, A) + b
     linear_cache = {"A": A, "W": W, "b": b}
     return Z, linear_cache
 
@@ -46,9 +47,11 @@ def softmax(Z):
         A – the activations of the layer
         activation_cache – returns Z, which will be useful for the backpropagation
     """
-    e_Z = np.exp(Z - np.max(Z))
-    A = e_Z / e_Z.sum(axis=0)
+    e_Z = np.exp(Z - Z.max(axis=0))
+    c = np.sum(e_Z, axis=0)
+    A = e_Z / c
     activation_cache = {"Z": Z}
+    # print(e_Z/c)
     return A, activation_cache
 
 
@@ -59,7 +62,7 @@ def relu(Z):
         A – the activations of the layer
         activation_cache – returns Z, which will be useful for the backpropagation
     """
-    A = np.vectorize(np.maximum(Z, 0))  # TODO should I vectorize?
+    A = np.maximum(Z, 0)#np.vectorize(np.maximum(Z, 0))  # TODO should I vectorize?
     activation_cache = {"Z": Z}
     return A, activation_cache
 
@@ -97,13 +100,14 @@ def L_model_forward(X, parameters, use_batchnorm):
 
     # all layers but the last should have the ReLU activation function,
     # and the final layer will apply the softmax activation function.
-    activation_functions = ["relu" for i in range(layers_n - 1)].append("softmax")
+    activation_functions = ["relu" for i in range(layers_n - 1)]
+    activation_functions.append("softmax")
 
     AL = X
     for layer_i, activation in zip(range(1, layers_n + 1), activation_functions):
         AL, cache = linear_activation_forward(AL,
-                                              parameters.get(f"W{layer_i + 1}"),
-                                              parameters.get(f"b{layer_i + 1}"),
+                                              parameters.get(f"W{layer_i}"),
+                                              parameters.get(f"b{layer_i}"),
                                               activation)
         caches.append(cache)
         if use_batchnorm:

@@ -1,5 +1,6 @@
 from tensorflow.keras.datasets.mnist import load_data
 import build_network
+import numpy as np
 
 
 """
@@ -21,6 +22,13 @@ import build_network
     d.	All the information requested above will be included in a .docx file uploaded with the code.
 
 """
-if '__name__' == 'main':
-    x_train, y_train, x_test, y_test = load_data(path='mnist.npz')
-    build_network.L_layer_model(x_train, y_train, layers_dims=[20, 7, 5, 10], learning_rate=0.009, num_iterations=100, batch_size=64)
+
+(x_train, y_train), (x_test, y_test) = load_data(path='mnist.npz')
+# x_flatten = np.array([x.flatten()/255.0 for x in x_train])
+x_flatten = x_train.reshape(x_train.shape[0], x_train.shape[1] * x_train.shape[2])/255.0
+# order in functions:
+# y_flatten = np.expand_dims(y_train.transpose(), axis=1)
+# y_flatten = y_flatten.flatten().astype(int)
+extended_y = np.zeros((y_train.shape[0], 10))
+extended_y[np.arange(y_train.shape[0]), y_train] = 1
+build_network.L_layer_model(x_flatten.T, extended_y.T, layers_dims=[784, 20, 7, 5, 10], learning_rate=0.009, num_iterations=100, batch_size=256)
