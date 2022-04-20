@@ -32,7 +32,7 @@ def linear_forward(A, W, b):
         linear_cache – a dictionary containing A, W, b (stored for making the backpropagation easier to compute)
     """
     # 𝑧 = 𝑤^𝑇*𝑥 + 𝑏
-    Z = np.matmul(W, A) + b  # np.matmul(W, A) + b
+    Z = np.matmul(W, A) + b  # W is already transposed
     linear_cache = {"A": A, "W": W, "b": b}
     return Z, linear_cache
 
@@ -51,7 +51,6 @@ def softmax(Z):
     c = np.sum(e_Z, axis=0)
     A = e_Z / c
     activation_cache = {"Z": Z}
-    # print(e_Z/c)
     return A, activation_cache
 
 
