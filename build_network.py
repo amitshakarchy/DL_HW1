@@ -81,6 +81,10 @@ def L_layer_model(X, Y, layers_dims, learning_rate, num_iterations, batch_size):
             # print('caches: ', caches)
             # print('grads: ', grads)
             # print('parameters: w1', parameters["W1"])
+        pred_, _ = forward.L_model_forward(x_train, parameters, USE_BATCHNORM)
+        print("cost:", forward.compute_cost(pred_, y_train))
+        # print(
+        #     f"Training: step #{training_steps_counter}/{num_iterations}: acc: {predict(x_train, y_train, parameters)}")
 
         if training_steps_counter % 100 == 0:
             A_val, _ = forward.L_model_forward(x_val, parameters, USE_BATCHNORM)
@@ -89,10 +93,7 @@ def L_layer_model(X, Y, layers_dims, learning_rate, num_iterations, batch_size):
             print(
                 f"Validation: step #{training_steps_counter}/{num_iterations}, acc: {predict(x_val, y_val, parameters)}")
 
-        # pred_, _ = forward.L_model_forward(x_train, parameters, USE_BATCHNORM)
-        # print("cost:", forward.compute_cost(pred_, y_train))
-        # print(
-        #     f"Training: step #{training_steps_counter}/{num_iterations}: acc: {predict(x_train, y_train, parameters)}")
+
         training_steps_counter += 1
 
     return parameters, costs

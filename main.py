@@ -4,7 +4,7 @@ import numpy as np
 
 
 def normalise_data(x, y):
-    # x_flatten = np.array([x.flatten()/255.0 for x in x_train])
+    # x_normalized = np.array([x.flatten()/255.0 for x in x])
     x_normalized = x.reshape(x.shape[0], x.shape[1] * x.shape[2]) / 255.0
     # y_flatten = np.expand_dims(y_train.transpose(), axis=1)
     # y_flatten = y_flatten.flatten().astype(int)
@@ -44,4 +44,4 @@ if __name__ == '__main__':
     parameters, costs = build_network.L_layer_model(x_train.T, y_train.T, layers_dims=[784, 20, 7, 5, 10],
                                                     learning_rate=0.009,
                                                     num_iterations=100, batch_size=64)
-    print("ACC: ", build_network.predict(x_test, y_test, parameters))
+    print("ACC: ", build_network.predict(x_test.T, y_test.T, parameters))
