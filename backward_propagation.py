@@ -5,16 +5,21 @@ def linear_backward(dZ, cache):
     Implements the linear part of the backward propagation process for a single layer
     :param dZ: the gradient of the cost with respect to the linear output of the current layer (layer l)
     :param cache:tuple of values (A_prev, W, b) coming from the forward propagation in the current layer
-
     :return:
         dA_prev -- Gradient of the cost with respect to the activation (of the previous layer l-1), same shape as A_prev
         dW -- Gradient of the cost with respect to W (current layer l), same shape as W
         db -- Gradient of the cost with respect to b (current layer l), same shape as b
     """
-    m = cache['A_prev'].shape[1]
-    dW_curr = np.dot(dZ, cache['A_prev'].T) / m
-    db_curr = np.sum(dZ, axis=1, keepdims=True) / m
-    dA_prev = np.dot(cache['W'].T, dZ)
+    m = cache['A'].shape[1]
+    # dW_curr = np.dot(dZ,cache['A'].transpose())/m# np.dot(cache['A'].transpose(), dZ) / m #TODO
+    # db_curr = np.sum(dZ, axis=0, keepdims=True) / m
+    # dA_prev = np.dot(dZ, cache['W'].transpose())
+
+    dA_prev = np.matmul(cache['W'].transpose(), dZ) #.transpose()
+    dW_curr = np.matmul(dZ, cache['A'].transpose())/m
+    db_curr =  np.sum(dZ, axis=1)/m
+    db_curr = db_curr.reshape(-1, 1)
+
 
     return dA_prev, dW_curr, db_curr
 
@@ -29,7 +34,6 @@ def linear_activation_backward(dA, cache, activation):
         and y_i is the “ground truth” (i.e. 1 for the real class, 0 for all others)
         * You should use the activations cache created earlier for the calculation of the activation derivative and the linear
         cache should be fed to the linear_backward function
-
     :param dA: post activation gradient of the current layer
     :param cache: contains both the linear cache and the activations cache
     :param activation:
@@ -83,7 +87,6 @@ def L_model_backward(AL, Y, caches):
     Some comments:
     the backpropagation for the softmax function should be done only once as only the output layers uses it and the RELU
     should be done iteratively over all the remaining layers of the network.
-
     :param AL: the probabilities vector, the output of the forward propagation (L_model_forward)
     :param Y: the true labels vector (the "ground truth" - true classifications)
     :param caches: list of caches containing for each layer: a) the linear cache; b) the activation cache
@@ -99,8 +102,8 @@ def L_model_backward(AL, Y, caches):
     caches[num_of_layers -1 ]['AL'] = AL
     caches[num_of_layers - 1]['Y'] = Y
     for layer in range(num_of_layers, 0, -1):
-        activation = 'relu' if dA_prev else 'softmax'
-        dA = dA_prev if dA_prev else -(Y/AL)+(1-Y)/(1-AL)
+        activation = 'relu' if dA_prev is not None else 'softmax'
+        dA = dA_prev if dA_prev is not None else -(Y/AL)+(1-Y)/(1-AL)
         dA_prev, dW, db = linear_activation_backward(dA, caches[layer - 1], activation)
         grads.update({f'dA{layer}': dA, f'dW{layer}': dW, f'db{layer}': db})
     return grads
@@ -116,8 +119,7 @@ def update_parameters(parameters, grads, learning_rate):
     """
     num_of_layers = len(parameters) // 2
     for layer in range(1, num_of_layers + 1):
-        parameters[f'b{layer}'] -= learning_rate * grads[f'db{layer}']
+        parameters[f'b{layer}'] -= learning_rate * grads[f'db{layer}'][0]
         parameters[f'W{layer}'] -= learning_rate * grads[f'dW{layer}']
 
     return parameters
-
