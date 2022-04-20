@@ -1,4 +1,5 @@
 """
+Performs forward propagation
 """
 import numpy as np
 from numpy import random
@@ -11,7 +12,8 @@ def initialize_parameters(layer_dims):
     output: a dictionary containing the initialized W and b parameters of each layer (W1…WL, b1…bL).
     """
     random.seed(1994)
-    params_W = {f"W{i + 1}": random.randn(layer_dims[i+1], layer_dims[i])*np.sqrt(2/layer_dims[i]) for i in range(len(layer_dims) - 1)}
+    params_W = {f"W{i + 1}": random.randn(layer_dims[i + 1], layer_dims[i]) * np.sqrt(2 / layer_dims[i]) for i in
+                range(len(layer_dims) - 1)}
     params_b = {f"b{i + 1}": np.zeros((layer_dims[i + 1], 1)) for i in range(len(layer_dims) - 1)}
     params_output = {}
     params_output.update(params_W)
@@ -30,7 +32,7 @@ def linear_forward(A, W, b):
         linear_cache – a dictionary containing A, W, b (stored for making the backpropagation easier to compute)
     """
     # 𝑧 = 𝑤^𝑇*𝑥 + 𝑏
-    Z = np.matmul(W, A) + b # np.matmul(W, A) + b
+    Z = np.matmul(W, A) + b  # np.matmul(W, A) + b
     linear_cache = {"A": A, "W": W, "b": b}
     return Z, linear_cache
 
@@ -60,7 +62,7 @@ def relu(Z):
         A – the activations of the layer
         activation_cache – returns Z, which will be useful for the backpropagation
     """
-    A = np.maximum(Z, 0)#np.vectorize(np.maximum(Z, 0))  # TODO should I vectorize?
+    A = np.maximum(Z, 0)  # np.vectorize(np.maximum(Z, 0))  # TODO should I vectorize?
     activation_cache = {"Z": Z}
     return A, activation_cache
 
@@ -127,7 +129,7 @@ def compute_cost(AL, Y):
         cost – the cross-entropy cost
     """
     m = AL.shape[0]  # num_of_classes
-    cost = -1 * np.sum(Y * np.log(AL))/m
+    cost = -1 * np.sum(Y * np.log(AL)) / m
     return cost
 
 
@@ -141,5 +143,5 @@ def apply_batchnorm(A):
     mean = np.mean(A, axis=1)
     variance = np.var(A, axis=1)
     epsilon = 0.000000001
-    NA = (A - mean) / np.sqrt(variance + epsilon)
+    NA = (A - np.expand_dims(mean, axis=1)) / np.sqrt(np.expand_dims(variance, axis=1) + epsilon)
     return NA

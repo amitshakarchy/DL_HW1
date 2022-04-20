@@ -11,23 +11,30 @@ STOPPING_CRITERIA = 100  # 100 training steps with no change
 
 
 def train_validation_split(X, Y):
-    # all_data = np.concatenate([X, Y], axis=0)  # concat rows before shuffling
-    # random.shuffle(all_data)
-    # train, validation = all_data[:, int(VALIDATION_FRAC * len(all_data)):], all_data[:,
-    #                                                                         :int(VALIDATION_FRAC * len(all_data))]
-
+    """
+    Split data into train & validation subsets
+    :param X: mnist data
+    :param Y: mnist true labels
+    :return: train, validation subsets
+    """
     all_data = np.concatenate([X.T, Y.T], axis=1)
     train, validation = all_data[int(VALIDATION_FRAC * len(all_data)):, :], all_data[
                                                                             :int(VALIDATION_FRAC * len(all_data)), :]
-    # validation_index = random.sample(range(X.shape[0]), math.ceil(VALIDATION_FRAC*X.shape[0])) # shuffle
-    # train_index = [x for x in range(X.shape[0]) if x not in validation_index]
-    # train = (X[train_index], Y[train_index])
-    # validation = (X[validation_index], Y[validation_index])
-    return train.T, validation.T #todo
+
+    return train.T, validation.T
 
 
-def split_x_y(data, y_size):
-    x, y = data.T[:, :(data.T).shape[1]-y_size] , data.T[:, -y_size:] #data.T[:, :y_size]
+def split_x_y(data, n_classes):
+    """
+    Splits concatenated data into X, Y subsets
+    :param data: data to split
+    :param n_classes: number of classes
+    :return: 
+        X - data
+        Y - labels
+    """
+    x, y = data.T[:, :(data.T).shape[1] - n_classes], data.T[:, -n_classes:]
+
     return x.T, y.T
 
 
@@ -60,31 +67,23 @@ def L_layer_model(X, Y, layers_dims, learning_rate, num_iterations, batch_size):
     train, validation = train_validation_split(X, Y)
     x_val, y_val = split_x_y(validation, y_cols_n)
     x_train, y_train = split_x_y(train, y_cols_n)
+
     examples_num = x_train.shape[1]  # just changed from 0 to 1 continue debug here
     n_batches = examples_num // batch_size
 
     while (training_steps_counter < STOPPING_CRITERIA) and (training_steps_counter < num_iterations):
-        random.shuffle(train)
-        batches = np.array_split(train, n_batches, axis=1)
-        # all_data = np.concatenate([x_train,y_train], axis=0)
-        # suffled = random.shuffle(all_data)
-        # batches = []
-        # for i in range(0, len(x_train), batch_size):
-        #     batches.append((x_train[i:i + batch_size], y_train[i:i + batch_size]))
+        x_batches = np.array_split(x_train, n_batches, axis=1)
+        y_batches = np.array_split(y_train, n_batches, axis=1)
 
-        for batch in batches:
-            x_b, y_b = split_x_y(batch, y_cols_n)
+        for x_b, y_b in zip(x_batches, y_batches):
             AL, caches = forward.L_model_forward(x_b, parameters, USE_BATCHNORM)
             grads = backward.L_model_backward(AL, y_b, caches)
             parameters = backward.update_parameters(parameters, grads, learning_rate)
-            # print('AL: ', AL)
-            # print('caches: ', caches)
-            # print('grads: ', grads)
-            # print('parameters: w1', parameters["W1"])
+
         pred_, _ = forward.L_model_forward(x_train, parameters, USE_BATCHNORM)
         print("cost:", forward.compute_cost(pred_, y_train))
-        # print(
-        #     f"Training: step #{training_steps_counter}/{num_iterations}: acc: {predict(x_train, y_train, parameters)}")
+        print(
+            f"Training: step #{training_steps_counter}/{num_iterations}: acc: {predict(x_train, y_train, parameters)}")
 
         if training_steps_counter % 100 == 0:
             A_val, _ = forward.L_model_forward(x_val, parameters, USE_BATCHNORM)
@@ -92,7 +91,6 @@ def L_layer_model(X, Y, layers_dims, learning_rate, num_iterations, batch_size):
             costs.append(cost)
             print(
                 f"Validation: step #{training_steps_counter}/{num_iterations}, acc: {predict(x_val, y_val, parameters)}")
-
 
         training_steps_counter += 1
 
