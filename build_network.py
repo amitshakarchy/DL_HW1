@@ -8,6 +8,7 @@ import math
 USE_BATCHNORM = False  # used in L_layer_model function
 VALIDATION_FRAC = 0.2
 STOPPING_CRITERIA = 100  # 100 training steps with no change
+NO_CHANGE_EPSILON = 0.0000001
 
 
 def train_validation_split(X, Y):
@@ -70,8 +71,10 @@ def L_layer_model(X, Y, layers_dims, learning_rate, num_iterations, batch_size):
 
     examples_num = x_train.shape[1]  # just changed from 0 to 1 continue debug here
     n_batches = examples_num // batch_size
+    no_change_flag = False
+    prev_acc = 0
 
-    while (training_steps_counter < STOPPING_CRITERIA) and (training_steps_counter < num_iterations):
+    while not no_change_flag:
         x_batches = np.array_split(x_train, n_batches, axis=1)
         y_batches = np.array_split(y_train, n_batches, axis=1)
 
@@ -84,14 +87,18 @@ def L_layer_model(X, Y, layers_dims, learning_rate, num_iterations, batch_size):
                 A_val, _ = forward.L_model_forward(x_val, parameters, USE_BATCHNORM)
                 cost = forward.compute_cost(A_val, y_val)
                 costs.append(cost)
+                validation_acc = predict(x_val, y_val, parameters)
                 print(
-                    f"Training step #{training_steps_counter}, validation data: acc - {predict(x_val, y_val, parameters)}, cost - {cost}")
+                    f"Training step #{training_steps_counter}, validation data: acc - {validation_acc}, cost - {cost}")
 
-        training_steps_counter += 1
+                if np.abs(validation_acc - prev_acc) <= NO_CHANGE_EPSILON:
+                    no_change_flag = True
+                prev_acc = validation_acc
+
+            training_steps_counter += 1
     # compute accuracy:
     print(f"Final accuracy score on Training data: {predict(x_train, y_train, parameters)}")
     print(f"Final accuracy score on Validation data: {predict(x_val, y_val, parameters)}")
-
     return parameters, costs
 
 
