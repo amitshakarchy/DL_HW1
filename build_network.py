@@ -29,7 +29,7 @@ def split_x_y(data, n_classes):
     Splits concatenated data into X, Y subsets
     :param data: data to split
     :param n_classes: number of classes
-    :return: 
+    :return:
         X - data
         Y - labels
     """
@@ -80,19 +80,17 @@ def L_layer_model(X, Y, layers_dims, learning_rate, num_iterations, batch_size):
             grads = backward.L_model_backward(AL, y_b, caches)
             parameters = backward.update_parameters(parameters, grads, learning_rate)
 
-        pred_, _ = forward.L_model_forward(x_train, parameters, USE_BATCHNORM)
-        print("cost:", forward.compute_cost(pred_, y_train))
-        print(
-            f"Training: step #{training_steps_counter}/{num_iterations}: acc: {predict(x_train, y_train, parameters)}")
-
-        if training_steps_counter % 100 == 0:
-            A_val, _ = forward.L_model_forward(x_val, parameters, USE_BATCHNORM)
-            cost = forward.compute_cost(A_val, y_val)
-            costs.append(cost)
-            print(
-                f"Validation: step #{training_steps_counter}/{num_iterations}, acc: {predict(x_val, y_val, parameters)}")
+            if training_steps_counter % 100 == 0:
+                A_val, _ = forward.L_model_forward(x_val, parameters, USE_BATCHNORM)
+                cost = forward.compute_cost(A_val, y_val)
+                costs.append(cost)
+                print(
+                    f"Training step #{training_steps_counter}, validation data: acc - {predict(x_val, y_val, parameters)}, cost - {cost}")
 
         training_steps_counter += 1
+    # compute accuracy:
+    print(f"Final accuracy score on Training data: {predict(x_train, y_train, parameters)}")
+    print(f"Final accuracy score on Validation data: {predict(x_val, y_val, parameters)}")
 
     return parameters, costs
 

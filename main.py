@@ -55,6 +55,7 @@ if __name__ == '__main__':
     x_train, y_train, x_test, y_test = prep_data()
     parameters, costs = build_network.L_layer_model(x_train.T, y_train.T, layers_dims=[784, 20, 7, 5, 10],
                                                     learning_rate=0.009,
-                                                    num_iterations=10, batch_size=64)
-    print("ACC: ", build_network.predict(x_test.T, y_test.T, parameters))
+                                                    num_iterations=100, batch_size=64)
+
+    print(f"Final accuracy score on Test data: {build_network.predict(x_test.T, y_test.T, parameters)}")
     plot_cost_func(costs)
