@@ -1,4 +1,8 @@
+"""
+Performs backward propagation
+"""
 import numpy as np
+
 
 def linear_backward(dZ, cache):
     """
@@ -11,15 +15,12 @@ def linear_backward(dZ, cache):
         db -- Gradient of the cost with respect to b (current layer l), same shape as b
     """
     m = cache['A'].shape[1]
-    # dW_curr = np.dot(dZ,cache['A'].transpose())/m# np.dot(cache['A'].transpose(), dZ) / m #TODO
-    # db_curr = np.sum(dZ, axis=0, keepdims=True) / m
-    # dA_prev = np.dot(dZ, cache['W'].transpose())
 
-    dA_prev = np.matmul(cache['W'].transpose(), dZ) #.transpose()
-    dW_curr = np.matmul(dZ, cache['A'].transpose())/m
-    db_curr =  np.sum(dZ, axis=1)/m
-    db_curr = db_curr.reshape(-1, 1)
+    dA_prev = np.matmul(cache['W'].transpose(), dZ)
+    dW_curr = np.matmul(dZ, cache['A'].transpose()) / m
+    db_curr = np.sum(dZ, axis=1) / m
 
+    db_curr = np.expand_dims(db_curr, axis=1)
 
     return dA_prev, dW_curr, db_curr
 
@@ -47,9 +48,10 @@ def linear_activation_backward(dA, cache, activation):
     else:
         activation_function = softmax_backward
 
-    dz = activation_function(dA, cache) # TODO how to send the right cache?
+    dz = activation_function(dA, cache)
     dA_prev, dW, db = linear_backward(dz, cache)
     return dA_prev, dW, db
+
 
 def relu_backward(dA, activation_cache):
     """
@@ -64,7 +66,6 @@ def relu_backward(dA, activation_cache):
     # When z <= 0, you should set dz to 0 as well.
     dZ[Z <= 0] = 0
     return dZ
-
 
 
 def softmax_backward(dA, activation_cache):
@@ -99,14 +100,15 @@ def L_model_backward(AL, Y, caches):
     grads = {}
     dA_prev = None
     num_of_layers = len(caches)
-    caches[num_of_layers -1 ]['AL'] = AL
+    caches[num_of_layers - 1]['AL'] = AL
     caches[num_of_layers - 1]['Y'] = Y
     for layer in range(num_of_layers, 0, -1):
         activation = 'relu' if dA_prev is not None else 'softmax'
-        dA = dA_prev if dA_prev is not None else -(Y/AL)+(1-Y)/(1-AL)
+        dA = dA_prev if dA_prev is not None else -(Y / AL) + (1 - Y) / (1 - AL)
         dA_prev, dW, db = linear_activation_backward(dA, caches[layer - 1], activation)
         grads.update({f'dA{layer}': dA, f'dW{layer}': dW, f'db{layer}': db})
     return grads
+
 
 def update_parameters(parameters, grads, learning_rate):
     """

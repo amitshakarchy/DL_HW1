@@ -2,7 +2,7 @@ import backward
 import forward
 import numpy as np
 
-BATCHNORM_USAGE = True
+BATCHNORM_USAGE = False
 
 
 def generate_validation_data(data_x, data_y, validation_factor=0.2):
