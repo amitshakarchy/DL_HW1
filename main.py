@@ -2,7 +2,7 @@ from tensorflow.keras.datasets.mnist import load_data
 import build_network
 import numpy as np
 import matplotlib.pyplot as plt
-
+from time import time
 
 def plot_cost_func(costs):
     """
@@ -53,9 +53,12 @@ def prep_data():
 if __name__ == '__main__':
     np.random.seed(33)
     x_train, y_train, x_test, y_test = prep_data()
+    t_start = time()
     parameters, costs = build_network.L_layer_model(x_train.T, y_train.T, layers_dims=[784, 20, 7, 5, 10],
                                                     learning_rate=0.009,
-                                                    num_iterations=100, batch_size=64)
-
+                                                    num_iterations=10, batch_size=64)
+    t_end = time()
     print(f"Final accuracy score on Test data: {build_network.predict(x_test.T, y_test.T, parameters)}")
     plot_cost_func(costs)
+
+    print("Running time: ", t_end-t_start)
